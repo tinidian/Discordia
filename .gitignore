@@ -111,3 +111,5 @@ config.ini
 
 # pylint
 pylintrc
+
+.vscode

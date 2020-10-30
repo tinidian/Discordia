@@ -1,7 +1,7 @@
-noise
 discord
 pillow
 pixelhouse
 numpy
 astar
 pytest
+perlin-noise

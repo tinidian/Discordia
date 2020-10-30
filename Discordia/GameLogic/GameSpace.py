@@ -14,7 +14,7 @@ import math
 import numpy as np
 from astar import AStar
 from math import sqrt
-from noise import pnoise3
+from perlin_noise import PerlinNoise
 
 from Discordia import SPRITE_FOLDER
 from Discordia.GameLogic import Events, Actors, Items, Weapons
@@ -25,6 +25,8 @@ from Discordia.GameLogic.StringGenerator import TownNameGenerator, WildsNameGene
 LOG = logging.getLogger("Discordia.GameLogic.GameSpace")
 
 Direction = Tuple[int, int]
+
+pnoise3 = PerlinNoise(octaves=1)
 
 DIRECTION_VECTORS: Dict[str, Direction] = {
     'n': (0, -1),
@@ -423,16 +425,18 @@ class World:
         for x in range(self.width):
             for y in range(self.height):
                 # Land and water pass
+                test = pnoise3([x/resolution, y / resolution]) * sand_slice
+
                 self.map[y][x] = Space(x, y, SandTerrain() if abs(
-                    pnoise3(x / resolution, y / resolution, sand_slice)) > water_threshold else WaterTerrain())
+                    pnoise3([x / resolution, y / resolution]) * sand_slice) > water_threshold else WaterTerrain())
 
                 # Mountains pass
-                if abs(pnoise3(x / resolution, y / resolution, mountain_slice)) > mountain_threshold and self.map[y][
+                if abs(pnoise3([x / resolution, y / resolution]) * mountain_slice) > mountain_threshold and self.map[y][
                     x].terrain.walkable:
                     self.map[y][x] = Space(x, y, MountainTerrain())
 
                 # Grass pass
-                if abs(pnoise3(x / resolution, y / resolution, grass_slice)) > grass_threshold:
+                if abs(pnoise3([x / resolution, y / resolution]) * grass_slice) > grass_threshold:
                     self.map[y][x] = Space(x, y, GrassTerrain())
 
                 # Town and Wilds pass
